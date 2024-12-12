@@ -1112,7 +1112,9 @@ class MarkItDown:
         self, issue_url: str, github_token: str
     ) -> DocumentConverterResult:
         if not IS_GITHUB_ISSUE_CAPABLE:
-            raise ImportError("PyGithub is not installed. Please install it to use this feature.")
+            raise ImportError(
+                "PyGithub is not installed. Please install it to use this feature."
+            )
 
         # Parse the issue URL
         parsed_url = urlparse(issue_url)
@@ -1135,7 +1137,9 @@ class MarkItDown:
         markdown_content += f"**Comments:**\n"
 
         for comment in issue.get_comments():
-            markdown_content += f"- {comment.user.login} ({comment.created_at}): {comment.body}\n"
+            markdown_content += (
+                f"- {comment.user.login} ({comment.created_at}): {comment.body}\n"
+            )
 
         return DocumentConverterResult(
             title=issue.title,
