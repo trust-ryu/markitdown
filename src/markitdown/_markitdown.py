@@ -50,7 +50,7 @@ try:
 
     IS_GITHUB_ISSUE_CAPABLE = True
 except ModuleNotFoundError:
-    pass
+    IS_GITHUB_ISSUE_CAPABLE = False
 
 
 class _CustomMarkdownify(markdownify.MarkdownConverter):
@@ -1111,6 +1111,33 @@ class MarkItDown:
     def convert_github_issue(
         self, issue_url: str, github_token: str
     ) -> DocumentConverterResult:
+        """
+        Convert a GitHub issue to a markdown document.
+
+        Args:
+            issue_url (str): The URL of the GitHub issue to convert.
+            github_token (str): A GitHub token with access to the repository.
+
+        Returns:
+            DocumentConverterResult: The result containing the issue title and markdown content.
+
+        Raises:
+            ImportError: If the PyGithub library is not installed.
+            ValueError: If the provided URL is not a valid GitHub issue URL.
+
+        Example:
+            # Example markdown format
+            # Issue Title
+
+            Issue body content...
+
+            **State:** open
+            **Created at:** 2023-10-01 12:34:56
+            **Updated at:** 2023-10-02 12:34:56
+            **Comments:**
+            - user1 (2023-10-01 13:00:00): Comment content...
+            - user2 (2023-10-01 14:00:00): Another comment...
+        """
         if not IS_GITHUB_ISSUE_CAPABLE:
             raise ImportError(
                 "PyGithub is not installed. Please install it to use this feature."
