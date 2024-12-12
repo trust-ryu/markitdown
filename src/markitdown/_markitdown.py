@@ -44,6 +44,14 @@ try:
 except ModuleNotFoundError:
     pass
 
+# Optional GitHub issue support
+try:
+    from github import Github
+
+    IS_GITHUB_ISSUE_CAPABLE = True
+except ModuleNotFoundError:
+    pass
+
 
 class _CustomMarkdownify(markdownify.MarkdownConverter):
     """
@@ -1099,3 +1107,37 @@ class MarkItDown:
     def register_page_converter(self, converter: DocumentConverter) -> None:
         """Register a page text converter."""
         self._page_converters.insert(0, converter)
+
+    def convert_github_issue(
+        self, issue_url: str, github_token: str
+    ) -> DocumentConverterResult:
+        if not IS_GITHUB_ISSUE_CAPABLE:
+            raise ImportError("PyGithub is not installed. Please install it to use this feature.")
+
+        # Parse the issue URL
+        parsed_url = urlparse(issue_url)
+        path_parts = parsed_url.path.strip("/").split("/")
+        if len(path_parts) < 4 or path_parts[2] != "issues":
+            raise ValueError("Invalid GitHub issue URL")
+
+        owner, repo, _, issue_number = path_parts[:4]
+
+        # Authenticate with GitHub
+        g = Github(github_token)
+        repo = g.get_repo(f"{owner}/{repo}")
+        issue = repo.get_issue(int(issue_number))
+
+        # Convert issue details to markdown
+        markdown_content = f"# {issue.title}\n\n{issue.body}\n\n"
+        markdown_content += f"**State:** {issue.state}\n"
+        markdown_content += f"**Created at:** {issue.created_at}\n"
+        markdown_content += f"**Updated at:** {issue.updated_at}\n"
+        markdown_content += f"**Comments:**\n"
+
+        for comment in issue.get_comments():
+            markdown_content += f"- {comment.user.login} ({comment.created_at}): {comment.body}\n"
+
+        return DocumentConverterResult(
+            title=issue.title,
+            text_content=markdown_content,
+        )
