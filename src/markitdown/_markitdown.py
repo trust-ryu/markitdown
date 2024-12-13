@@ -849,7 +849,6 @@ class GitHubIssueConverter(DocumentConverter):
     """Converts GitHub issues to Markdown."""
 
     def convert(self, issue_url, github_token) -> Union[None, DocumentConverterResult]:
-
         # Bail if not a valid GitHub issue URL
         if issue_url:
             parsed_url = urlparse(issue_url)
@@ -858,7 +857,9 @@ class GitHubIssueConverter(DocumentConverter):
                 return None
 
             if not github_token:
-                raise ValueError("GitHub token is not set. Cannot convert GitHub issue.")
+                raise ValueError(
+                    "GitHub token is not set. Cannot convert GitHub issue."
+                )
 
             return self._convert_github_issue(issue_url, github_token)
 
@@ -972,8 +973,12 @@ class MarkItDown:
             if parsed_url.hostname == "github.com" and "/issues/" in parsed_url.path:
                 github_token = kwargs.get("github_token", os.getenv("GITHUB_TOKEN"))
                 if not github_token:
-                    raise ValueError("GitHub token is required for GitHub issue conversion.")
-                return GitHubIssueConverter().convert(issue_url=source, github_token=github_token)
+                    raise ValueError(
+                        "GitHub token is required for GitHub issue conversion."
+                    )
+                return GitHubIssueConverter().convert(
+                    issue_url=source, github_token=github_token
+                )
 
         # Local path or url
         if isinstance(source, str):
