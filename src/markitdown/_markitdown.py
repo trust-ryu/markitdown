@@ -845,6 +845,75 @@ class ImageConverter(MediaConverter):
         return response.choices[0].message.content
 
 
+class GitHubIssueConverter(DocumentConverter):
+    """Converts GitHub issues to Markdown."""
+
+    def convert(self, issue_url, github_token) -> Union[None, DocumentConverterResult]:
+
+        # Bail if not a valid GitHub issue URL
+        if issue_url:
+            parsed_url = urlparse(issue_url)
+            path_parts = parsed_url.path.strip("/").split("/")
+            if len(path_parts) < 4 or path_parts[2] != "issues":
+                return None
+
+            if not github_token:
+                raise ValueError("GitHub token is not set. Cannot convert GitHub issue.")
+
+            return self._convert_github_issue(issue_url, github_token)
+
+        return None
+
+    def _convert_github_issue(
+        self, issue_url: str, github_token: str
+    ) -> DocumentConverterResult:
+        """
+        Convert a GitHub issue to a markdown document.
+        Args:
+            issue_url (str): The URL of the GitHub issue to convert.
+            github_token (str): A GitHub token with access to the repository.
+        Returns:
+            DocumentConverterResult: The result containing the issue title and markdown content.
+        Raises:
+            ImportError: If the PyGithub library is not installed.
+            ValueError: If the provided URL is not a valid GitHub issue URL.
+        """
+        if not IS_GITHUB_ISSUE_CAPABLE:
+            raise ImportError(
+                "PyGithub is not installed. Please install it to use this feature."
+            )
+
+        # Parse the issue URL
+        parsed_url = urlparse(issue_url)
+        path_parts = parsed_url.path.strip("/").split("/")
+        if len(path_parts) < 4 or path_parts[2] != "issues":
+            raise ValueError("Invalid GitHub issue URL")
+
+        owner, repo, _, issue_number = path_parts[:4]
+
+        # Authenticate with GitHub
+        g = Github(github_token)
+        repo = g.get_repo(f"{owner}/{repo}")
+        issue = repo.get_issue(int(issue_number))
+
+        # Convert issue details to markdown
+        markdown_content = f"# {issue.title}\n\n{issue.body}\n\n"
+        markdown_content += f"**State:** {issue.state}\n"
+        markdown_content += f"**Created at:** {issue.created_at}\n"
+        markdown_content += f"**Updated at:** {issue.updated_at}\n"
+        markdown_content += f"**Comments:**\n"
+
+        for comment in issue.get_comments():
+            markdown_content += (
+                f"- {comment.user.login} ({comment.created_at}): {comment.body}\n"
+            )
+
+        return DocumentConverterResult(
+            title=issue.title,
+            text_content=markdown_content,
+        )
+
+
 class FileConversionException(BaseException):
     pass
 
@@ -897,6 +966,12 @@ class MarkItDown:
             - source: can be a string representing a path or url, or a requests.response object
             - extension: specifies the file extension to use when interpreting the file. If None, infer from source (path, uri, content-type, etc.)
         """
+        # Handle GitHub issue URLs directly
+        if isinstance(source, str) and "github.com" in source and "/issues/" in source:
+            github_token = kwargs.get("github_token", os.getenv("GITHUB_TOKEN"))
+            if not github_token:
+                raise ValueError("GitHub token is required for GitHub issue conversion.")
+            return GitHubIssueConverter().convert(issue_url=source, github_token=github_token)
 
         # Local path or url
         if isinstance(source, str):
@@ -1107,68 +1182,3 @@ class MarkItDown:
     def register_page_converter(self, converter: DocumentConverter) -> None:
         """Register a page text converter."""
         self._page_converters.insert(0, converter)
-
-    def convert_github_issue(
-        self, issue_url: str, github_token: str
-    ) -> DocumentConverterResult:
-        """
-        Convert a GitHub issue to a markdown document.
-
-        Args:
-            issue_url (str): The URL of the GitHub issue to convert.
-            github_token (str): A GitHub token with access to the repository.
-
-        Returns:
-            DocumentConverterResult: The result containing the issue title and markdown content.
-
-        Raises:
-            ImportError: If the PyGithub library is not installed.
-            ValueError: If the provided URL is not a valid GitHub issue URL.
-
-        Example:
-            # Example markdown format
-            # Issue Title
-
-            Issue body content...
-
-            **State:** open
-            **Created at:** 2023-10-01 12:34:56
-            **Updated at:** 2023-10-02 12:34:56
-            **Comments:**
-            - user1 (2023-10-01 13:00:00): Comment content...
-            - user2 (2023-10-01 14:00:00): Another comment...
-        """
-        if not IS_GITHUB_ISSUE_CAPABLE:
-            raise ImportError(
-                "PyGithub is not installed. Please install it to use this feature."
-            )
-
-        # Parse the issue URL
-        parsed_url = urlparse(issue_url)
-        path_parts = parsed_url.path.strip("/").split("/")
-        if len(path_parts) < 4 or path_parts[2] != "issues":
-            raise ValueError("Invalid GitHub issue URL")
-
-        owner, repo, _, issue_number = path_parts[:4]
-
-        # Authenticate with GitHub
-        g = Github(github_token)
-        repo = g.get_repo(f"{owner}/{repo}")
-        issue = repo.get_issue(int(issue_number))
-
-        # Convert issue details to markdown
-        markdown_content = f"# {issue.title}\n\n{issue.body}\n\n"
-        markdown_content += f"**State:** {issue.state}\n"
-        markdown_content += f"**Created at:** {issue.created_at}\n"
-        markdown_content += f"**Updated at:** {issue.updated_at}\n"
-        markdown_content += f"**Comments:**\n"
-
-        for comment in issue.get_comments():
-            markdown_content += (
-                f"- {comment.user.login} ({comment.created_at}): {comment.body}\n"
-            )
-
-        return DocumentConverterResult(
-            title=issue.title,
-            text_content=markdown_content,
-        )

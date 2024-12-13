@@ -188,7 +188,7 @@ def test_markitdown_exiftool() -> None:
 )
 def test_markitdown_github_issue() -> None:
     markitdown = MarkItDown()
-    result = markitdown.convert_github_issue(GITHUB_ISSUE_URL, GITHUB_TOKEN)
+    result = markitdown.convert(GITHUB_ISSUE_URL, github_token=GITHUB_TOKEN)
     print(result.text_content)
     assert "User-Defined Functions" in result.text_content
     assert "closed" in result.text_content
