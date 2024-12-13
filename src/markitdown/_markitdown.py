@@ -967,11 +967,13 @@ class MarkItDown:
             - extension: specifies the file extension to use when interpreting the file. If None, infer from source (path, uri, content-type, etc.)
         """
         # Handle GitHub issue URLs directly
-        if isinstance(source, str) and "github.com" in source and "/issues/" in source:
-            github_token = kwargs.get("github_token", os.getenv("GITHUB_TOKEN"))
-            if not github_token:
-                raise ValueError("GitHub token is required for GitHub issue conversion.")
-            return GitHubIssueConverter().convert(issue_url=source, github_token=github_token)
+        if isinstance(source, str):
+            parsed_url = urlparse(source)
+            if parsed_url.hostname == "github.com" and "/issues/" in parsed_url.path:
+                github_token = kwargs.get("github_token", os.getenv("GITHUB_TOKEN"))
+                if not github_token:
+                    raise ValueError("GitHub token is required for GitHub issue conversion.")
+                return GitHubIssueConverter().convert(issue_url=source, github_token=github_token)
 
         # Local path or url
         if isinstance(source, str):
