@@ -967,19 +967,6 @@ class MarkItDown:
             - source: can be a string representing a path or url, or a requests.response object
             - extension: specifies the file extension to use when interpreting the file. If None, infer from source (path, uri, content-type, etc.)
         """
-        # Handle GitHub issue URLs directly
-        if isinstance(source, str):
-            parsed_url = urlparse(source)
-            if parsed_url.hostname == "github.com" and "/issues/" in parsed_url.path:
-                github_token = kwargs.get("github_token", os.getenv("GITHUB_TOKEN"))
-                if not github_token:
-                    raise ValueError(
-                        "GitHub token is required for GitHub issue conversion."
-                    )
-                return GitHubIssueConverter().convert(
-                    issue_url=source, github_token=github_token
-                )
-
         # Local path or url
         if isinstance(source, str):
             if (
@@ -993,6 +980,26 @@ class MarkItDown:
         # Request response
         elif isinstance(source, requests.Response):
             return self.convert_response(source, **kwargs)
+
+    def convert_url(
+        self, url: str, **kwargs: Any
+    ) -> DocumentConverterResult:  # TODO: fix kwargs type
+        # Handle GitHub issue URLs directly
+        parsed_url = urlparse(url)
+        if parsed_url.hostname == "github.com" and "/issues/" in parsed_url.path:
+            github_token = kwargs.get("github_token", os.getenv("GITHUB_TOKEN"))
+            if not github_token:
+                raise ValueError(
+                    "GitHub token is required for GitHub issue conversion."
+                )
+            return GitHubIssueConverter().convert(
+                issue_url=url, github_token=github_token
+            )
+
+        # Send a HTTP request to the URL
+        response = self._requests_session.get(url, stream=True)
+        response.raise_for_status()
+        return self.convert_response(response, **kwargs)
 
     def convert_local(
         self, path: str, **kwargs: Any
@@ -1047,14 +1054,6 @@ class MarkItDown:
             os.unlink(temp_path)
 
         return result
-
-    def convert_url(
-        self, url: str, **kwargs: Any
-    ) -> DocumentConverterResult:  # TODO: fix kwargs type
-        # Send a HTTP request to the URL
-        response = self._requests_session.get(url, stream=True)
-        response.raise_for_status()
-        return self.convert_response(response, **kwargs)
 
     def convert_response(
         self, response: requests.Response, **kwargs: Any
