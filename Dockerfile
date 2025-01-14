@@ -17,7 +17,6 @@ RUN pip install markitdown
 # Default USERID and GROUPID
 ARG USERID=10000
 ARG GROUPID=10000
-
 USER $USERID:$GROUPID
 
 ENTRYPOINT [ "markitdown" ]
