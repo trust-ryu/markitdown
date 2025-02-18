@@ -37,7 +37,6 @@ class DocumentIntelligenceConverter(DocumentConverter):
             api_version=self.api_version,
             credential=DefaultAzureCredential(),
         )
-        self._priority = priority
 
     def convert(
         self, local_path: str, **kwargs: Any
