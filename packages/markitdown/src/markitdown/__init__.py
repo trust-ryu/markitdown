@@ -10,6 +10,7 @@ from ._exceptions import (
     FileConversionException,
     UnsupportedFormatException,
 )
+from ._input import ConverterInput
 from .converters import DocumentConverter, DocumentConverterResult
 
 __all__ = [
@@ -21,4 +22,5 @@ __all__ = [
     "ConverterPrerequisiteException",
     "FileConversionException",
     "UnsupportedFormatException",
+    "ConverterInput",
 ]
