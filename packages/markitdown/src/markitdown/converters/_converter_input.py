@@ -21,7 +21,7 @@ class ConverterInput:
         self,
         mode: str = 'rb',
         encoding: Union[str, None] = None,
-    ) -> Union[str, bytes, Any]:
+    ) -> Any:
         if self.input_type == "object":
             return self.file_object
         
