@@ -16,3 +16,13 @@ class ConverterInput:
         self.input_type = input_type
         self.filepath = filepath
         self.file_object = file_object
+
+    def read_file(
+        self,
+        mode: str = 'rb',
+        encoding: Union[str, None] = None,
+    ) -> Union[str, bytes, Any]:
+        if self.input_type == "object":
+            return self.file_object
+        
+        return open(self.filepath, mode=mode, encoding=encoding)
