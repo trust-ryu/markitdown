@@ -36,6 +36,7 @@ from .converters import (
     OutlookMsgConverter,
     ZipConverter,
     DocumentIntelligenceConverter,
+    ConverterInput,
 )
 
 from ._exceptions import (
@@ -213,8 +214,11 @@ class MarkItDown:
         for g in self._guess_ext_magic(path):
             self._append_ext(extensions, g)
 
+        # Create the ConverterInput object
+        input = ConverterInput(input_type="filepath", filepath=path)
+
         # Convert
-        return self._convert(path, extensions, **kwargs)
+        return self._convert(input, extensions, **kwargs)
 
     # TODO what should stream's type be?
     def convert_stream(
@@ -241,8 +245,11 @@ class MarkItDown:
             for g in self._guess_ext_magic(temp_path):
                 self._append_ext(extensions, g)
 
+            # Create the ConverterInput object
+            input = ConverterInput(input_type="filepath", filepath=temp_path)
+
             # Convert
-            result = self._convert(temp_path, extensions, **kwargs)
+            result = self._convert(input, extensions, **kwargs)
         # Clean up
         finally:
             try:
@@ -297,8 +304,11 @@ class MarkItDown:
             for g in self._guess_ext_magic(temp_path):
                 self._append_ext(extensions, g)
 
+            # Create the ConverterInput object
+            input = ConverterInput(input_type="filepath", filepath=temp_path)
+
             # Convert
-            result = self._convert(temp_path, extensions, url=response.url, **kwargs)
+            result = self._convert(input, extensions, url=response.url, **kwargs)
         # Clean up
         finally:
             try:
@@ -310,7 +320,7 @@ class MarkItDown:
         return result
 
     def _convert(
-        self, local_path: str, extensions: List[Union[str, None]], **kwargs
+        self, input: ConverterInput, extensions: List[Union[str, None]], **kwargs
     ) -> DocumentConverterResult:
         error_trace = ""
 
@@ -348,7 +358,7 @@ class MarkItDown:
 
                 # If we hit an error log it and keep trying
                 try:
-                    res = converter.convert(local_path, **_kwargs)
+                    res = converter.convert(input, **_kwargs)
                 except Exception:
                     error_trace = ("\n\n" + traceback.format_exc()).strip()
 
@@ -365,12 +375,12 @@ class MarkItDown:
         # If we got this far without success, report any exceptions
         if len(error_trace) > 0:
             raise FileConversionException(
-                f"Could not convert '{local_path}' to Markdown. File type was recognized as {extensions}. While converting the file, the following error was encountered:\n\n{error_trace}"
+                f"Could not convert '{input.filepath}' to Markdown. File type was recognized as {extensions}. While converting the file, the following error was encountered:\n\n{error_trace}"
             )
 
         # Nothing can handle it!
         raise UnsupportedFormatException(
-            f"Could not convert '{local_path}' to Markdown. The formats {extensions} are not supported."
+            f"Could not convert '{input.filepath}' to Markdown. The formats {extensions} are not supported."
         )
 
     def _append_ext(self, extensions, ext):
