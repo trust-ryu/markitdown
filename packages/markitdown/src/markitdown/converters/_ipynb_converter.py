@@ -30,6 +30,7 @@ class IpynbConverter(DocumentConverter):
         result = None
         file_obj = input.read_file(mode="rt", encoding="utf-8")
         notebook_content = json.load(file_obj)
+        file_obj.close()
         result = self._convert(notebook_content)
 
         return result

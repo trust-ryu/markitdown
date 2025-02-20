@@ -73,6 +73,7 @@ class ImageConverter(MediaConverter):
             content_type = "image/jpeg"
         image_file = input.read_file(mode="rb")
         image_base64 = base64.b64encode(image_file.read()).decode("utf-8")
+        image_file.close()
         data_uri = f"data:{content_type};base64,{image_base64}"
 
         messages = [

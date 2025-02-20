@@ -182,7 +182,6 @@ class MarkItDown:
             - source: can be a string representing a path either as string pathlib path object or url, a requests.response object, or a file object (TextIO or BinaryIO)
             - extension: specifies the file extension to use when interpreting the file. If None, infer from source (path, uri, content-type, etc.)
         """
-
         # Local path or url
         if isinstance(source, str):
             if (
@@ -198,6 +197,9 @@ class MarkItDown:
             return self.convert_response(source, **kwargs)
         elif isinstance(source, Path):
             return self.convert_local(source, **kwargs)
+        # File object
+        elif isinstance(source, BufferedIOBase) or isinstance(source, TextIOBase):
+            return self.convert_file_object(source, **kwargs)
 
     def convert_local(
         self, path: Union[str, Path], **kwargs: Any
@@ -341,7 +343,6 @@ class MarkItDown:
         self, input: ConverterInput, extensions: List[Union[str, None]], **kwargs
     ) -> DocumentConverterResult:
         error_trace = ""
-
         # Create a copy of the page_converters list, sorted by priority.
         # We do this with each call to _convert because the priority of converters may change between calls.
         # The sort is guaranteed to be stable, so converters with the same priority will remain in the same order.
@@ -442,7 +443,7 @@ class MarkItDown:
             # Guess extensions for file objects
             elif isinstance(source, BufferedIOBase) or isinstance(source, TextIOBase):
                 guesses = puremagic.magic_stream(source)
-
+                
             extensions = list()
             for g in guesses:
                 ext = g.extension.strip()

@@ -25,6 +25,8 @@ class XlsxConverter(HtmlConverter):
 
         file_obj = input.read_file(mode="rb")
         sheets = pd.read_excel(file_obj, sheet_name=None, engine="openpyxl")
+        file_obj.close()
+
         md_content = ""
         for s in sheets:
             md_content += f"## {s}\n"
@@ -50,6 +52,8 @@ class XlsConverter(HtmlConverter):
 
         file_obj = input.read_file(mode="rb")
         sheets = pd.read_excel(file_obj, sheet_name=None, engine="xlrd")
+        file_obj.close()
+
         md_content = ""
         for s in sheets:
             md_content += f"## {s}\n"

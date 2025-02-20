@@ -25,6 +25,8 @@ class PdfConverter(DocumentConverter):
         output = StringIO()
         file_obj = input.read_file(mode="rb")
         pdfminer.high_level.extract_text_to_fp(file_obj, output)
+        file_obj.close()
+
         return DocumentConverterResult(
             title=None,
             text_content=output.getvalue(),

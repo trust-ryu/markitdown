@@ -25,6 +25,7 @@ class HtmlConverter(DocumentConverter):
         result = None
         file_obj = input.read_file(mode="rt", encoding="utf-8")
         result = self._convert(file_obj.read())
+        file_obj.close()
 
         return result
 

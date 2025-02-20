@@ -31,6 +31,7 @@ class WikipediaConverter(DocumentConverter):
         soup = None
         file_obj = input.read_file(mode="rt", encoding="utf-8")
         soup = BeautifulSoup(file_obj.read(), "html.parser")
+        file_obj.close()
 
         # Remove javascript and style blocks
         for script in soup(["script", "style"]):

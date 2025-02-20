@@ -26,8 +26,9 @@ class OutlookMsgConverter(DocumentConverter):
             return None
 
         try:
-            file_obj = input.read_file(mode="rt", encoding="utf-8")
+            file_obj = input.read_file(mode="rb")
             msg = olefile.OleFileIO(file_obj)
+
             # Extract email metadata
             md_content = "# Email Message\n\n"
 
@@ -51,6 +52,7 @@ class OutlookMsgConverter(DocumentConverter):
                 md_content += body
 
             msg.close()
+            file_obj.close()
 
             return DocumentConverterResult(
                 title=headers.get("Subject"), text_content=md_content.strip()

@@ -63,6 +63,7 @@ class DocumentIntelligenceConverter(DocumentConverter):
         # Get the bytestring from the converter input
         file_obj = input.read_file(mode='rb')
         file_bytes = file_obj.read()
+        file_obj.close()
 
         # Certain document analysis features are not availiable for office filetypes (.xlsx, .pptx, .html, .docx)
         if extension.lower() in [".xlsx", ".pptx", ".html", ".docx"]:

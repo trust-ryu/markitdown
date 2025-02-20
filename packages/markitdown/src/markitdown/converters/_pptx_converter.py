@@ -59,6 +59,8 @@ class PptxConverter(HtmlConverter):
 
         file_obj = input.read_file(mode="rb")
         presentation = pptx.Presentation(file_obj)
+        file_obj.close()
+        
         slide_num = 0
         for slide in presentation.slides:
             slide_num += 1

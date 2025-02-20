@@ -31,6 +31,7 @@ class DocxConverter(HtmlConverter):
         style_map = kwargs.get("style_map", None)
         file_obj = input.read_file(mode="rb")
         result = mammoth.convert_to_html(file_obj, style_map=style_map)
+        file_obj.close()
         html_content = result.value
         result = self._convert(html_content)
 

@@ -39,6 +39,7 @@ class BingSerpConverter(DocumentConverter):
         soup = None
         file_obj = input.read_file(mode="rt", encoding="utf-8")
         soup = BeautifulSoup(file_obj.read(), "html.parser")
+        file_obj.close()
 
         # Clean up some formatting
         for tptt in soup.find_all(class_="tptt"):
