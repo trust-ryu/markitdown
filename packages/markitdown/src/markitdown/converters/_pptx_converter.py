@@ -49,7 +49,9 @@ class PptxConverter(HtmlConverter):
         )
         return response.choices[0].message.content
 
-    def convert(self, input: ConverterInput, **kwargs) -> Union[None, DocumentConverterResult]:
+    def convert(
+        self, input: ConverterInput, **kwargs
+    ) -> Union[None, DocumentConverterResult]:
         # Bail if not a PPTX
         extension = kwargs.get("file_extension", "")
         if extension.lower() != ".pptx":
@@ -60,7 +62,7 @@ class PptxConverter(HtmlConverter):
         file_obj = input.read_file(mode="rb")
         presentation = pptx.Presentation(file_obj)
         file_obj.close()
-        
+
         slide_num = 0
         for slide in presentation.slides:
             slide_num += 1

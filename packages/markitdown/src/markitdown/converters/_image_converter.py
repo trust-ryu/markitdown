@@ -14,7 +14,9 @@ class ImageConverter(MediaConverter):
     ):
         super().__init__(priority=priority)
 
-    def convert(self, input: ConverterInput, **kwargs) -> Union[None, DocumentConverterResult]:
+    def convert(
+        self, input: ConverterInput, **kwargs
+    ) -> Union[None, DocumentConverterResult]:
         # Bail if not an image
         extension = kwargs.get("file_extension", "")
         if extension.lower() not in [".jpg", ".jpeg", ".png"]:
@@ -63,7 +65,9 @@ class ImageConverter(MediaConverter):
             text_content=md_content,
         )
 
-    def _get_llm_description(self, input: ConverterInput, extension, client, model, prompt=None):
+    def _get_llm_description(
+        self, input: ConverterInput, extension, client, model, prompt=None
+    ):
         if prompt is None or prompt.strip() == "":
             prompt = "Write a detailed caption for this image."
 

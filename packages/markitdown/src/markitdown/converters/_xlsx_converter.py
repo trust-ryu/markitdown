@@ -17,7 +17,9 @@ class XlsxConverter(HtmlConverter):
     ):
         super().__init__(priority=priority)
 
-    def convert(self, input: ConverterInput, **kwargs) -> Union[None, DocumentConverterResult]:
+    def convert(
+        self, input: ConverterInput, **kwargs
+    ) -> Union[None, DocumentConverterResult]:
         # Bail if not a XLSX
         extension = kwargs.get("file_extension", "")
         if extension.lower() != ".xlsx":
@@ -44,7 +46,9 @@ class XlsConverter(HtmlConverter):
     Converts XLS files to Markdown, with each sheet presented as a separate Markdown table.
     """
 
-    def convert(self, input: ConverterInput, **kwargs) -> Union[None, DocumentConverterResult]:
+    def convert(
+        self, input: ConverterInput, **kwargs
+    ) -> Union[None, DocumentConverterResult]:
         # Bail if not a XLS
         extension = kwargs.get("file_extension", "")
         if extension.lower() != ".xls":

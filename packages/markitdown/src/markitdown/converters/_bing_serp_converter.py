@@ -22,7 +22,9 @@ class BingSerpConverter(DocumentConverter):
     ):
         super().__init__(priority=priority)
 
-    def convert(self, input: ConverterInput, **kwargs) -> Union[None, DocumentConverterResult]:
+    def convert(
+        self, input: ConverterInput, **kwargs
+    ) -> Union[None, DocumentConverterResult]:
         # Bail if not a Bing SERP
         extension = kwargs.get("file_extension", "")
         if extension.lower() not in [".html", ".htm"]:

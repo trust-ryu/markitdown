@@ -35,7 +35,9 @@ class Mp3Converter(WavConverter):
     ):
         super().__init__(priority=priority)
 
-    def convert(self, input: ConverterInput, **kwargs) -> Union[None, DocumentConverterResult]:
+    def convert(
+        self, input: ConverterInput, **kwargs
+    ) -> Union[None, DocumentConverterResult]:
         # Bail if not a MP3
         extension = kwargs.get("file_extension", "")
         if extension.lower() != ".mp3":

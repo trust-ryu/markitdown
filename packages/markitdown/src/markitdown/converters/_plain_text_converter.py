@@ -22,7 +22,7 @@ class PlainTextConverter(DocumentConverter):
         if input.input_type != "filepath":
             return None
         local_path = input.filepath
-        
+
         # Guess the content type from any file extension that might be around
         content_type, _ = mimetypes.guess_type(
             "__placeholder" + kwargs.get("file_extension", "")

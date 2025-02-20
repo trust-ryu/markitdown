@@ -175,7 +175,9 @@ class MarkItDown:
             warn("Plugins converters are already enabled.", RuntimeWarning)
 
     def convert(
-        self, source: Union[str, requests.Response, Path, BufferedIOBase, TextIOBase], **kwargs: Any
+        self,
+        source: Union[str, requests.Response, Path, BufferedIOBase, TextIOBase],
+        **kwargs: Any,
     ) -> DocumentConverterResult:  # TODO: deal with kwargs
         """
         Args:
@@ -222,10 +224,10 @@ class MarkItDown:
 
         # Convert
         return self._convert(input, extensions, **kwargs)
-    
+
     def convert_file_object(
         self, file_object: Union[BufferedIOBase, TextIOBase], **kwargs: Any
-    ) -> DocumentConverterResult: #TODO: deal with kwargs
+    ) -> DocumentConverterResult:  # TODO: deal with kwargs
         # Prepare a list of extensions to try (in order of priority)
         ext = kwargs.get("file_extension")
         extensions = [ext] if ext is not None else []
@@ -417,7 +419,7 @@ class MarkItDown:
         # Use puremagic to guess
         try:
             guesses = []
-            
+
             # Guess extensions for filepaths
             if isinstance(source, str):
                 guesses = puremagic.magic_file(source)

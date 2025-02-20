@@ -61,7 +61,7 @@ class DocumentIntelligenceConverter(DocumentConverter):
             return None
 
         # Get the bytestring from the converter input
-        file_obj = input.read_file(mode='rb')
+        file_obj = input.read_file(mode="rb")
         file_bytes = file_obj.read()
         file_obj.close()
 

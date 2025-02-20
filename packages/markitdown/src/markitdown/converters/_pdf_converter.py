@@ -16,7 +16,9 @@ class PdfConverter(DocumentConverter):
     ):
         super().__init__(priority=priority)
 
-    def convert(self, input: ConverterInput, **kwargs) -> Union[None, DocumentConverterResult]:
+    def convert(
+        self, input: ConverterInput, **kwargs
+    ) -> Union[None, DocumentConverterResult]:
         # Bail if not a PDF
         extension = kwargs.get("file_extension", "")
         if extension.lower() != ".pdf":
@@ -31,4 +33,3 @@ class PdfConverter(DocumentConverter):
             title=None,
             text_content=output.getvalue(),
         )
-        

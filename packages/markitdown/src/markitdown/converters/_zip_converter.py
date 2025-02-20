@@ -58,7 +58,7 @@ class ZipConverter(DocumentConverter):
         extension = kwargs.get("file_extension", "")
         if extension.lower() != ".zip":
             return None
-        
+
         # Bail if a local path is not provided
         if input.input_type != "filepath":
             return None
@@ -116,7 +116,7 @@ class ZipConverter(DocumentConverter):
                         # Skip the zip converter to avoid infinite recursion
                         if isinstance(converter, ZipConverter):
                             continue
-                        
+
                         # Create a ConverterInput for the parent converter and attempt conversion
                         input = ConverterInput(
                             input_type="filepath", filepath=file_path
