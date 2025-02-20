@@ -97,6 +97,18 @@ result = md.convert("test.pdf")
 print(result.text_content)
 ```
 
+MarkItDown also supports converting file objects directly:
+
+```python
+from markitdown import MarkItDown
+
+md = MarkItDown()
+path = "test.docx"
+with open(path, 'rb') as file:
+    result = md.convert(file, file_extension=".docx")
+    print(result.text_content)
+```
+
 To use Large Language Models for image descriptions, provide `llm_client` and `llm_model`:
 
 ```python
