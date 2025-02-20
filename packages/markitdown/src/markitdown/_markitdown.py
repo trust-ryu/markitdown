@@ -10,7 +10,7 @@ from typing import Any, List, Optional, Union
 from pathlib import Path
 from urllib.parse import urlparse
 from warnings import warn
-from io import BufferedIOBase, TextIOBase
+from io import BufferedIOBase, TextIOBase, BytesIO
 
 # File-format detection
 import puremagic
@@ -416,7 +416,7 @@ class MarkItDown:
         """Use puremagic (a Python implementation of libmagic) to guess a file's extension based on the first few bytes."""
         # Use puremagic to guess
         try:
-            guesses = None
+            guesses = []
             
             # Guess extensions for filepaths
             if isinstance(source, str):
@@ -440,10 +440,11 @@ class MarkItDown:
                         except puremagic.main.PureError:
                             pass
 
-            # Guess extensions for file objects
-            elif isinstance(source, BufferedIOBase) or isinstance(source, TextIOBase):
+            # Guess extensions for file objects. Note that the puremagic's magic_stream function requires a BytesIO-like file source
+            # TODO: Figure out how to guess extensions for TextIO-like file sources (manually converting to BytesIO does not currently work)
+            elif isinstance(source, BufferedIOBase):
                 guesses = puremagic.magic_stream(source)
-                
+
             extensions = list()
             for g in guesses:
                 ext = g.extension.strip()
