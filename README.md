@@ -103,9 +103,15 @@ MarkItDown also supports converting file objects directly:
 from markitdown import MarkItDown
 
 md = MarkItDown()
-path = "test.docx"
-with open(path, 'rb') as file:
+
+# Binary Mode
+with open("test.docx", 'rb') as file:
     result = md.convert(file, file_extension=".docx")
+    print(result.text_content)
+
+# Non-Binary Mode
+with open("sample.ipynb", 'rt', encoding="utf-8") as file:
+    result = md.convert(file, file_extension=".ipynb")
     print(result.text_content)
 ```
 
