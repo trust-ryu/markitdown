@@ -104,6 +104,7 @@ from markitdown import MarkItDown
 
 md = MarkItDown()
 
+# Providing the file extension when converting via file objects is recommended for most consistent results
 # Binary Mode
 with open("test.docx", 'rb') as file:
     result = md.convert(file, file_extension=".docx")
