@@ -410,6 +410,7 @@ if __name__ == "__main__":
     """Runs this file's tests from the command line."""
     test_markitdown_remote()
     test_markitdown_local_paths()
+    test_markitdown_local_objects()
     test_markitdown_exiftool()
     # test_markitdown_llm()
     print("All tests passed!")

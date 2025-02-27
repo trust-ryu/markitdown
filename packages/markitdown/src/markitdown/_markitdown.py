@@ -228,7 +228,7 @@ class MarkItDown:
     def convert_file_object(
         self, file_object: Union[BufferedIOBase, TextIOBase], **kwargs: Any
     ) -> DocumentConverterResult:  # TODO: deal with kwargs
-        # Prepare a list of extensions to try (in order of priority)
+        # Prepare a list of extensions to try (in order of priority
         ext = kwargs.get("file_extension")
         extensions = [ext] if ext is not None else []
 
