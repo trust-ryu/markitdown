@@ -335,10 +335,22 @@ def test_markitdown_local_objects() -> None:
         text_content = result.text_content.replace("\\", "")
         validate_strings(result, SERP_TEST_STRINGS, SERP_TEST_EXCLUDES)
 
+    # Test RSS processing
+    with open(os.path.join(TEST_FILES_DIR, "test_rss.xml"), "rb") as f:
+        result = markitdown.convert(f, file_extension=".xml")
+        text_content = result.text_content.replace("\\", "")
+        for test_string in RSS_TEST_STRINGS:
+            assert test_string in text_content
+
     # Test MSG (Outlook email) processing
     with open(os.path.join(TEST_FILES_DIR, "test_outlook_msg.msg"), "rb") as f:
         result = markitdown.convert(f, file_extension=".msg")
         validate_strings(result, MSG_TEST_STRINGS)
+
+    # Test JSON processing
+    with open(os.path.join(TEST_FILES_DIR, "test.json"), "rb") as f:
+        result = markitdown.convert(f, file_extension=".json")
+        validate_strings(result, JSON_TEST_STRINGS)
 
 
 @pytest.mark.skipif(

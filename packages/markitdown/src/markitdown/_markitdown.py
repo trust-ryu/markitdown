@@ -230,7 +230,7 @@ class MarkItDown:
         ext = kwargs.get("file_extension")
         extensions = [ext] if ext is not None else []
 
-        # TODO: Curently, there are some ongoing issues with puremagic's magic_stream function (incorrect guesses, unsupported file types, etc.)
+        # TODO: Curently, there are some ongoing issues with passing direct file objects to puremagic (incorrect guesses, unsupported file type errors, etc.)
         # Only use puremagic as a last resort if no extensions were provided
         if extensions == []:
             for g in self._guess_ext_magic(source=file_object):
