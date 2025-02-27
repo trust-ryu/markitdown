@@ -1,6 +1,6 @@
 import mimetypes
 
-from charset_normalizer import from_path
+from charset_normalizer import from_path, from_bytes
 from typing import Any, Union
 
 from ._base import DocumentConverter, DocumentConverterResult
@@ -18,10 +18,8 @@ class PlainTextConverter(DocumentConverter):
     def convert(
         self, input: ConverterInput, **kwargs: Any
     ) -> Union[None, DocumentConverterResult]:
-        # Bail if a local path is not provided
-        if input.input_type != "filepath":
-            return None
-        local_path = input.filepath
+        # Read file object from input
+        file_obj = input.read_file(mode="rb")
 
         # Guess the content type from any file extension that might be around
         content_type, _ = mimetypes.guess_type(
@@ -37,7 +35,8 @@ class PlainTextConverter(DocumentConverter):
         ):
             return None
 
-        text_content = str(from_path(local_path).best())
+        text_content = str(from_bytes(file_obj.read()).best())
+        file_obj.close()
         return DocumentConverterResult(
             title=None,
             text_content=text_content,

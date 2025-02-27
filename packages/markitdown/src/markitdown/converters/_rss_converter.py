@@ -22,15 +22,15 @@ class RssConverter(DocumentConverter):
         extension = kwargs.get("file_extension", "")
         if extension.lower() not in [".xml", ".rss", ".atom"]:
             return None
-        # Bail if a local path is not provided
-        if input.input_type != "filepath":
-            return None
-        local_path = input.filepath
+        # Read file object from input
+        file_obj = input.read_file(mode="rb")
 
         try:
-            doc = minidom.parse(local_path)
+            doc = minidom.parse(file_obj)
         except BaseException as _:
             return None
+        file_obj.close()
+
         result = None
         if doc.getElementsByTagName("rss"):
             # A RSS feed must have a root element of <rss>

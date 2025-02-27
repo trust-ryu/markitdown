@@ -175,9 +175,7 @@ class MarkItDown:
             warn("Plugins converters are already enabled.", RuntimeWarning)
 
     def convert(
-        self,
-        source: Union[str, requests.Response, Path, BufferedIOBase, TextIOBase],
-        **kwargs: Any,
+        self, source: Union[str, requests.Response, Path, BufferedIOBase, TextIOBase], **kwargs: Any
     ) -> DocumentConverterResult:  # TODO: deal with kwargs
         """
         Args:
@@ -224,17 +222,19 @@ class MarkItDown:
 
         # Convert
         return self._convert(input, extensions, **kwargs)
-
+    
     def convert_file_object(
         self, file_object: Union[BufferedIOBase, TextIOBase], **kwargs: Any
-    ) -> DocumentConverterResult:  # TODO: deal with kwargs
+    ) -> DocumentConverterResult: #TODO: deal with kwargs
         # Prepare a list of extensions to try (in order of priority)
         ext = kwargs.get("file_extension")
         extensions = [ext] if ext is not None else []
 
-        # Get extension alternatives from puremagic
-        for g in self._guess_ext_magic(source=file_object):
-            self._append_ext(extensions, g)
+        # TODO: Curently, there are some ongoing issues with puremagic's magic_stream function (incorrect guesses, unsupported file types, etc.)
+        # Only use puremagic as a last resort if no extensions were provided
+        if extensions == []:
+            for g in self._guess_ext_magic(source=file_object):
+                self._append_ext(extensions, g)
 
         # Create the ConverterInput object
         input = ConverterInput(input_type="object", file_object=file_object)
@@ -419,7 +419,7 @@ class MarkItDown:
         # Use puremagic to guess
         try:
             guesses = []
-
+            
             # Guess extensions for filepaths
             if isinstance(source, str):
                 guesses = puremagic.magic_file(source)
@@ -443,7 +443,7 @@ class MarkItDown:
                             pass
 
             # Guess extensions for file objects. Note that the puremagic's magic_stream function requires a BytesIO-like file source
-            # TODO: Figure out how to guess extensions for TextIO-like file sources (manually converting to BytesIO does not currently work)
+            # TODO: Figure out how to guess extensions for TextIO-like file sources (manually converting to BytesIO does not work)
             elif isinstance(source, BufferedIOBase):
                 guesses = puremagic.magic_stream(source)
 
