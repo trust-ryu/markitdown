@@ -30,6 +30,7 @@ from .converters import (
     BingSerpConverter,
     PdfConverter,
     DocxConverter,
+    OneNoteConverter,
     XlsxConverter,
     XlsConverter,
     PptxConverter,
@@ -158,6 +159,7 @@ class MarkItDown:
             self.register_converter(YouTubeConverter())
             self.register_converter(BingSerpConverter())
             self.register_converter(DocxConverter())
+            self.register_converter(OneNoteConverter())
             self.register_converter(XlsxConverter())
             self.register_converter(XlsConverter())
             self.register_converter(PptxConverter())

@@ -17,6 +17,7 @@ At present, MarkItDown supports:
 - PowerPoint
 - Word
 - Excel
+- OneNote
 - Images (EXIF metadata and OCR)
 - Audio (EXIF metadata and speech transcription)
 - HTML
@@ -82,6 +83,7 @@ At the moment, the following optional dependencies are available:
 * `[xls]` Installs dependencies for older Excel files
 * `[pdf]` Installs dependencies for PDF files
 * `[outlook]` Installs dependencies for Outlook messages
+* `[onenote]` Installs dependencies for OneNote .one files
 * `[az-doc-intel]` Installs dependencies for Azure Document Intelligence
 * `[audio-transcription]` Installs dependencies for audio transcription of wav and mp3 files
 * `[youtube-transcription]` Installs dependencies for fetching YouTube video transcription
