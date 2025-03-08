@@ -1,8 +1,9 @@
 import puremagic
 import mimetypes
+import zipfile
 import os
 from dataclasses import dataclass, asdict
-from typing import Optional, BinaryIO, List, TypeVar, Type
+from typing import Optional, BinaryIO, List, Union
 
 # Mimetype substitutions table
 MIMETYPE_SUBSTITUTIONS = {
@@ -74,6 +75,20 @@ def _guess_stream_info_from_stream(
                 )
             )
 
+    # If it looks like a zip use _guess_stream_info_from_zip rather than puremagic
+    cur_pos = file_stream.tell()
+    try:
+        header = file_stream.read(4)
+        file_stream.seek(cur_pos)
+        if header == b"PK\x03\x04":
+            zip_guess = _guess_stream_info_from_zip(file_stream)
+            if zip_guess:
+                guesses.append(zip_guess)
+                return guesses
+    finally:
+        file_stream.seek(cur_pos)
+
+    # Fall back to using puremagic
     def _puremagic(
         file_stream, filename_hint
     ) -> List[puremagic.main.PureMagicWithConfidence]:
@@ -120,3 +135,74 @@ def _guess_stream_info_from_stream(
             guesses.append(StreamInfo(**kwargs))
 
     return guesses
+
+
+def _guess_stream_info_from_zip(file_stream: BinaryIO) -> Union[None, StreamInfo]:
+    """
+    Guess StreamInfo properties (mostly mimetype and extension) from a zip stream.
+
+    Args:
+    - stream: The stream to guess the StreamInfo from.
+
+    Returns the single best guess, or None if no guess could be made.
+    """
+
+    cur_pos = file_stream.tell()
+    try:
+        with zipfile.ZipFile(file_stream) as z:
+            table_of_contents = z.namelist()
+
+            # OpenPackageFormat (OPF) file
+            if "[Content_Types].xml" in table_of_contents:
+                # Word file
+                if "word/document.xml" in table_of_contents:
+                    return StreamInfo(
+                        mimetype="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                        extension=".docx",
+                    )
+
+                # Excel file
+                if "xl/workbook.xml" in table_of_contents:
+                    return StreamInfo(
+                        mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                        extension=".xlsx",
+                    )
+
+                # PowerPoint file
+                if "ppt/presentation.xml" in table_of_contents:
+                    return StreamInfo(
+                        mimetype="application/vnd.openxmlformats-officedocument.presentationml.presentation",
+                        extension=".pptx",
+                    )
+
+                # Visio file
+                if "visio/document.xml" in table_of_contents:
+                    return StreamInfo(
+                        mimetype="application/vnd.ms-visio.drawing",
+                        extension=".vsd",
+                    )
+
+                # XPS file
+                if "FixedDocSeq.fdseq" in table_of_contents:
+                    return StreamInfo(
+                        mimetype="application/vnd.ms-xpsdocument",
+                        extension=".xps",
+                    )
+
+            # EPUB, or similar
+            if "mimetype" in table_of_contents:
+                _mimetype = z.read("mimetype").decode("ascii").strip()
+                _extension = mimetypes.guess_extension(_mimetype)
+                return StreamInfo(mimetype=_mimetype, extension=_extension)
+
+            # JAR
+            if "META-INF/MANIFEST.MF" in table_of_contents:
+                return StreamInfo(mimetype="application/java-archive", extension=".jar")
+
+            # If we made it this far, we couldn't identify the file
+            return StreamInfo(mimetype="application/zip", extension=".zip")
+
+    except zipfile.BadZipFile:
+        return None
+    finally:
+        file_stream.seek(cur_pos)
